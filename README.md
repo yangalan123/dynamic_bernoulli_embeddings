@@ -1,4 +1,4 @@
-### Dynamic Bernoulli Embeddings
+### Dynamic Bernoulli Embeddings for Language Evolution
 
 This repository contains scripts for running (dynamic) Bernoulli embeddings on text data.
 They have been run and tested on Linux. 
@@ -28,4 +28,5 @@ Make sure to use the same `--K` for both runs.
 
 
 ### Reference
-Link to arxiv submission coming up soon.
+Maja Rudolph and David Blei, 2017. [Dynamic Bernoulli Embeddings for Language Evolution](https://arxiv.org/abs/1703.08052)
+arxiv preprint arxiv:1703.08052.
