@@ -28,5 +28,5 @@ Make sure to use the same `--K` for both runs.
 
 
 ### Reference
-Maja Rudolph and David Blei, 2017. [Dynamic Bernoulli Embeddings for Language Evolution](https://arxiv.org/abs/1703.08052)
+Maja Rudolph and David Blei, 2017. [Dynamic Bernoulli Embeddings for Language Evolution](https://arxiv.org/abs/1703.08052).
 arxiv preprint arxiv:1703.08052.
