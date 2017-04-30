@@ -1,9 +1,9 @@
-### Instructions for data preprocessing for (dynamic Bernoulli embeddings).
+## Instructions for data preprocessing for (dynamic) Bernoulli embeddings.
 
 By preprocessing the data running the actual dynamic Bernoulli embeddings scripts can be sped up considerably. The goal is to truncate the vocabulary, remove all the words that are not in the vocabulary and then put the text that is fast to read for the dynamic bernoulli embeddings scripts namely numpy arrays. Then we split the data into training validation and test set and compute statistics of the data that we need to use in the algorithm (e.g the number of words in each time bin, and the prefix file names that hold the data for each time bin).
 Finally we also need a file that holds the vocabulary words in the order of 
 
-Depending on how large your data is, you should set aside ca. 30 minutes for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
+Depending on how large your data is, you should set aside *ca. 30 minutes* for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
 
 ### Reqired Input
 
@@ -86,5 +86,24 @@ Assuming you are in `dat/` simply run
 
 Tip: In this script data preprocesing is handled. Punctuation is removed, line-breaks are handled and everything is lower cased. Depending on your dataset, additional or differnt preprocessing steps might be required. We also recommend extracting bigrams and addind them to the vocabulary.
 
-Rest coming soon.
+### 2. Sumsample the data and split into train test and validation split
 
+As in step 1.1 open the file `step_2_split_data.py` and change the data_set name.
+Then form `dat/` run
+```
+    python step_2_split_data.py
+```
+
+### 3. Create data statistics.
+
+In this step, you simply have to run `step_3_create_data_stats.py`.
+Again, go into the file and change the `dataset_name`. 
+Then add the list of time slices from step 0 under `time_slices`
+(e.g. `time_slices = [90, 91, 92, ..., 00]`) and add the prefix length (in this case `prefix_length=2`).
+You also have the option to add query words. For these words the algorithm will print out the dynamic embeddings.
+More information is in the comments in `step_3_create_data_stats.py`.
+
+Finally, run
+```
+    python step_3_create_data_stats.py
+```
