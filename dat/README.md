@@ -1,20 +1,44 @@
 ## Instructions for data preprocessing for (dynamic) Bernoulli embeddings.
 
-By preprocessing the data running the actual dynamic Bernoulli embeddings scripts can be sped up considerably. The goal is to truncate the vocabulary, remove all the words that are not in the vocabulary and then put the text that is fast to read for the dynamic bernoulli embeddings scripts namely numpy arrays. Then we split the data into training validation and test set and compute statistics of the data that we need to use in the algorithm (e.g the number of words in each time bin, and the prefix file names that hold the data for each time bin).
-Finally we also need a file that holds the vocabulary words in the order of 
+Preprocess the data with 3 simple steps described below.
 
-Depending on how large your data is, you should set aside *ca. 30 minutes* for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
+Depending on how large your data is, you should set aside ca. 20 minutes for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
+
+The goal of preprocessing is to truncate the vocabulary, remove all the words that are not in the vocabulary and then put the text into numpy arrays. Then we split the data into training validation and test set and compute statistics of the data that we need to use in the algorithm (e.g the number of words in each time bin, and the prefixes of file names that hold the data for each time bin).
+
+These are the steps. They are described in detail below:
+
+  0. Decide on filenames for time slices
+  1. Create vocabulary file and save text data in numpy arrays
+  2. Subsample the data and split into training and testing
+  3. Create `dat_stats.pkl`
+
 
 ### Reqired Input
 
 The following folder structure is required to run dynamic Bernoulli embeddings.
+
+#### Before Preprocessing:
+Assumption: Your text is in text files in the `dat/[dataset_name]/raw/` subfolder.
+
 ```
 dat/
-    dataset_name/
+    [dataset_name]/
+        raw/
+            *.txt
+```
+
+#### After Preprocessing:
+
+The preprocessing scripts will add the following folders and files 
+```
+dat/
+    [dataset_name]/
         unigram.txt
         dat_stats.pkl
         raw/
             *.txt
+            *.npy
         train/
             *.npy
         test/
@@ -23,27 +47,10 @@ dat/
             *.npy
 ```            
 
-The `train/`, `test/` and `valid/` folders contain the `.npy` files with the data.
+The `train/`, `test/` and `valid/` folders will contain the `.npy` files with the data.
 The file `unigram.txt` contains the vocabulary and the vocabulary counts and the file `dat_stats.pkl` contains a pickle object that hold a python dictionary with information about the data required to run the algorithm.
 
-Assumption: Your text is in text files in the `raw/` subfolder.
 
-```
-dat/
-    dataset_name/
-        raw/
-            *.txt
-```
-The goal is to get the data into the format above. 
-Here is a list of the required steps.
-They are described in mode detail below.
-
-Steps:
-
-  0. Decide on filenames for time slices
-  1. Create vocabulary file and save text data in numpy arrays
-  2. Subsample the data and split into training and testing
-  3. Create `dat_stats.pkl`
   
  ### 0. Decide on filenames for the time slices
  
