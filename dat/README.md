@@ -2,7 +2,7 @@
 
 Preprocess the data with 3 simple steps described below.
 
-Depending on how large your data is, you should set aside ca. 30 minutes for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
+Depending on how large your data is, you should set aside ca. 20 minutes for these preprocessing steps. But they are worth it. They make running the algorithms significantly faster. The other good news is that code is included for all the preprocessing steps.
 
 The goal of preprocessing is to truncate the vocabulary, remove all the words that are not in the vocabulary and then put the text into numpy arrays. Then we split the data into training validation and test set and compute statistics of the data that we need to use in the algorithm (e.g the number of words in each time bin, and the prefixes of file names that hold the data for each time bin).
 
