@@ -36,7 +36,7 @@ class emb_model(object):
         """
         prints pairs which large inner products alpha`rho and rho`alpha 
         """
-        query_word = ed.placeholder(dtype=tf.int32)
+        query_word = tf.placeholder(dtype=tf.int32)
 
         unigram = tf.tile(tf.expand_dims(tf.constant(d.unigram.astype('float32')), [1]), [1, self.K])
         query_rho = tf.gather(self.rho, query_word)
@@ -98,7 +98,7 @@ class bern_emb_model(emb_model):
         
 
         # Data Placeholder
-        self.words = ed.placeholder(tf.int32, shape = (self.n_minibatch + self.cs))
+        self.words = tf.placeholder(tf.int32, shape = (self.n_minibatch + self.cs))
         self.placeholders = self.words
         
 
@@ -121,12 +121,12 @@ class bern_emb_model(emb_model):
             self.alpha = tf.Variable(0.1*tf.random_normal([d.L, self.K])/self.K)
 
 
-        self.prior_rho = Normal(mu = self.rho,
-                                sigma = (np.sqrt(1.0*d.N/self.n_minibatch) * self.lam).astype('float32') 
+        self.prior_rho = Normal(loc = self.rho,
+                                scale = (np.sqrt(1.0*d.N/self.n_minibatch) * self.lam).astype('float32') 
                                          * tf.ones([d.L, self.K]))
 
-        self.prior_alpha = Normal(mu = self.alpha,
-                                  sigma = (np.sqrt(1.0*d.N/self.n_minibatch) * self.lam).astype('float32') 
+        self.prior_alpha = Normal(loc = self.alpha,
+                                  scale = (np.sqrt(1.0*d.N/self.n_minibatch) * self.lam).astype('float32') 
                                            * tf.ones([d.L, self.K]))
 
         self.data = {self.prior_rho: tf.zeros((d.L, self.K)),
@@ -205,17 +205,17 @@ class dynamic_bern_emb_model(emb_model):
         # Prior on temporal dynamics
         variance = np.sqrt(1.0*d.N/self.n_minibatch) * 2.0 * self.sig
         variance[0] = 1000*variance[0]
-        sigma = tf.tile(tf.expand_dims(tf.expand_dims(variance.astype('float32'), [1]), [1]),[1, d.L, self.K]) * tf.ones([self.T, d.L, self.K])
-        self.prior_rho = Normal(mu = tf.slice(self.rho, [0, 0, 0], [self.T, d.L, self.K]) 
+        scale = tf.tile(tf.expand_dims(tf.expand_dims(variance.astype('float32'), [1]), [1]),[1, d.L, self.K]) * tf.ones([self.T, d.L, self.K])
+        self.prior_rho = Normal(loc = tf.slice(self.rho, [0, 0, 0], [self.T, d.L, self.K]) 
                                   - tf.slice(self.rho, [1, 0, 0], [self.T, d.L, self.K]),
-                               sigma = sigma)
+                               scale = scale)
 
         if self.alpha_fixed:
             self.data = {self.prior_rho: tf.zeros((self.T, d.L, self.K))}
 
         else:
-            self.prior_alpha = Normal(mu = self.alpha,
-                                  sigma = (np.sqrt(1.0*d.N/self.n_minibatch.sum()) * self.lam).astype('float32') * tf.ones([d.L, self.K]))
+            self.prior_alpha = Normal(loc = self.alpha,
+                                  scale = (np.sqrt(1.0*d.N/self.n_minibatch.sum()) * self.lam).astype('float32') * tf.ones([d.L, self.K]))
             self.data = {self.prior_rho: tf.zeros((self.T, d.L, self.K)),
                      self.prior_alpha: tf.zeros((d.L, self.K))}
 
@@ -232,7 +232,7 @@ class dynamic_bern_emb_model(emb_model):
             ctx_mask = tf.concat([rows+columns, rows+columns +self.cs/2+1], 1)
 
             # Data Placeholder
-            self.placeholders[t] = ed.placeholder(tf.int32, shape = (self.n_minibatch[t] + self.cs))
+            self.placeholders[t] = tf.placeholder(tf.int32, shape = (self.n_minibatch[t] + self.cs))
 
             # Taget and Context Indices
             self.p_idx = tf.gather(self.placeholders[t], p_mask)
@@ -315,8 +315,8 @@ class dynamic_bern_emb_model(emb_model):
         return words
 
     def print_word_similarities(self, words, d, num, dir_name, sess):
-        t = ed.placeholder(dtype=tf.int32)
-        query_word = ed.placeholder(dtype=tf.int32)
+        t = tf.placeholder(dtype=tf.int32)
+        query_word = tf.placeholder(dtype=tf.int32)
         query_rho_t = tf.expand_dims(tf.squeeze(tf.slice(self.rho, [t, query_word, 0], [1, 1, self.K])), [0])
         rho_t = tf.squeeze(tf.slice(self.rho, [t, 0, 0], [1, d.L, self.K]))
          
