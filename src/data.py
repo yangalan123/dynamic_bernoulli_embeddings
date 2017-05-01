@@ -12,10 +12,10 @@ class bern_emb_data():
         self.n_epochs = n_epochs
         self.dynamic = dynamic
         dat_stats = pickle.load(open(os.path.join(fpath, "dat_stats.pkl"), "a+"))
-        dat_stats['T_bins'] = dat_stats['T_bins'][:75]
-        dat_stats['train'] = dat_stats['train'][:75]
-        dat_stats['test'] = dat_stats['test'][:75]
-        dat_stats['valid'] = dat_stats['valid'][:75]
+        dat_stats['T_bins'] = dat_stats['T_bins']
+        dat_stats['train'] = dat_stats['train']
+        dat_stats['test'] = dat_stats['test']
+        dat_stats['valid'] = dat_stats['valid']
         self.T = len(dat_stats['T_bins'])
         self.name = dat_stats['name']
         if not self.dynamic:

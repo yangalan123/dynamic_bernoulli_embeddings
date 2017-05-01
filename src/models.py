@@ -129,8 +129,8 @@ class bern_emb_model(emb_model):
                                   scale = (np.sqrt(1.0*d.N/self.n_minibatch) * self.lam).astype('float32') 
                                            * tf.ones([d.L, self.K]))
 
-        self.data = {self.prior_rho: tf.zeros((d.L, self.K)),
-                     self.prior_alpha: tf.zeros((d.L, self.K))}
+        self.data = {self.prior_rho: tf.zeros((d.L, self.K), tf.int32),
+                     self.prior_alpha: tf.zeros((d.L, self.K), tf.int32)}
 
         # Taget and Context Indices
         self.p_idx = tf.gather(self.words, self.p_mask)
@@ -146,20 +146,15 @@ class bern_emb_model(emb_model):
         self.n_rho = tf.gather(self.rho, self.n_idx)
 
         # Natural parameter
-        if self.n_minibatch == 1:
-            ctx_sum = tf.reduce_sum(self.ctx_alphas,[0])
-            p_eta = tf.matmul(tf.expand_dims(self.p_rho,0), tf.expand_dims(ctx_sum,1))
-            n_eta = p_eta
-        else:
-            ctx_sum = tf.reduce_sum(self.ctx_alphas,[1])
-            p_eta = tf.expand_dims(tf.reduce_sum(tf.multiply(self.p_rho, ctx_sum),-1),1)
-            n_eta = tf.reduce_sum(tf.multiply(self.n_rho, tf.tile(tf.expand_dims(ctx_sum,1),[1,self.ns,1])),-1)
+        ctx_sum = tf.reduce_sum(self.ctx_alphas,[1])
+        p_eta = tf.expand_dims(tf.reduce_sum(tf.multiply(self.p_rho, ctx_sum),-1),1)
+        n_eta = tf.reduce_sum(tf.multiply(self.n_rho, tf.tile(tf.expand_dims(ctx_sum,1),[1,self.ns,1])),-1)
         
         # Conditional likelihood
         self.y_pos = Bernoulli(logits = p_eta)
         self.y_neg = Bernoulli(logits = n_eta)
 
-        self.data = {self.y_pos: tf.ones((self.n_minibatch, 1)), self.y_neg: tf.zeros((self.n_minibatch, self.ns))}
+        self.data = {self.y_pos: tf.ones((self.n_minibatch, 1), tf.int32), self.y_neg: tf.zeros((self.n_minibatch, self.ns), tf.int32)}
 
 
     def dump(self, fname):
@@ -259,8 +254,8 @@ class dynamic_bern_emb_model(emb_model):
             self.y_pos[t] = Bernoulli(logits = p_eta)
             self.y_neg[t] = Bernoulli(logits = n_eta)
 
-            self.data[self.y_pos[t]] = tf.ones((self.n_minibatch[t], 1))
-            self.data[self.y_neg[t]] = tf.zeros((self.n_minibatch[t], self.ns))
+            self.data[self.y_pos[t]] = tf.ones((self.n_minibatch[t], 1), tf.int32)
+            self.data[self.y_neg[t]] = tf.zeros((self.n_minibatch[t], self.ns), tf.int32)
 
     def eval_log_like(self, feed_dict, sess):
         log_p = np.zeros((0,1))
@@ -277,22 +272,15 @@ class dynamic_bern_emb_model(emb_model):
     def plot_params(self, dir_name, d, plot_only=500):
 	tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
         low_dim_embs_alpha = tsne.fit_transform(self.alpha.eval()[:plot_only])
-        plot_with_labels(low_dim_embs_alpha[:plot_only], d.labels[:plot_only], dir_name + 'alpha.eps')
+        plot_with_labels(low_dim_embs_alpha[:plot_only], d.labels[:plot_only], dir_name + '/alpha.eps')
         
         np_rho = self.rho.eval()
-
-        for t in [0, int(self.T/2), self.T-1]:
-            w_idx_t = np.argsort(d.unigram_t[t,:])[::-1][:plot_only]
-            tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
-            low_dim_embs_rho = tsne.fit_transform(np_rho[t,w_idx_t,:])
-            print(dir_name + 'freq_rho_' + str(t) + '.eps')
-            plot_with_labels(low_dim_embs_rho, d.labels[w_idx_t], dir_name + 'freq_rho_' + str(t) + '.eps')
 
         for t in [0, int(self.T/2), self.T-1]:
             w_idx_t = range(plot_only)
             tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
             low_dim_embs_rho = tsne.fit_transform(np_rho[t,w_idx_t,:])
-            plot_with_labels(low_dim_embs_rho, d.labels[w_idx_t], dir_name + 'rho_' + str(t) + '.eps')
+            plot_with_labels(low_dim_embs_rho, d.labels[w_idx_t], dir_name + '/rho_' + str(t) + '.eps')
 
     def detect_drift(self, d, dir_name, sess, metric='total_dist'):
         if metric == 'total_dist':
@@ -318,12 +306,12 @@ class dynamic_bern_emb_model(emb_model):
         t = tf.placeholder(dtype=tf.int32)
         query_word = tf.placeholder(dtype=tf.int32)
         query_rho_t = tf.expand_dims(tf.squeeze(tf.slice(self.rho, [t, query_word, 0], [1, 1, self.K])), [0])
-        rho_t = tf.squeeze(tf.slice(self.rho, [t, 0, 0], [1, d.L, self.K]))
+        #rho_t = tf.squeeze(tf.slice(self.rho, [t, 0, 0], [1, d.L, self.K]))
          
-        val_rho, idx_rho = tf.nn.top_k(tf.matmul(tf.nn.l2_normalize(query_rho_t, dim=0), tf.nn.l2_normalize(rho_t, dim=1), transpose_b=True), num)
+        val_rho, idx_rho = tf.nn.top_k(tf.matmul(tf.nn.l2_normalize(query_rho_t, dim=0), tf.nn.l2_normalize(self.alpha, dim=1), transpose_b=True), num)
 
         for x in words:
-            f_name = os.path.join(dir_name, '%s_queries_rho_cos.txt' % (x))
+            f_name = os.path.join(dir_name, '%s_queries.txt' % (x))
             with open(f_name, "w+") as text_file:
                 for t_idx in xrange(self.T):
                     vr, ir = sess.run([val_rho, idx_rho], {query_word: d.dictionary[x], t: t_idx})
