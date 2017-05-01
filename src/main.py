@@ -50,14 +50,12 @@ sess = ed.get_session()
 inference.initialize(optimizer=tf.train.AdagradOptimizer(learning_rate=args.eta))
 tf.initialize_all_variables().run()
 
-print('\n \n training is starting\n')
 # TRAINING
 train_loss = np.zeros(args.n_iter)
 with open(dir_name+"/log_file.txt", "w") as text_file:
     text_file.write(str(args)+'\n')
     for i in range(args.n_iter):
         for ii in range(args.n_epochs - 1):
-            print(str(ii)+'/'+str(args.n_epochs)+'   iter'+str(i))
             sess.run([inference.train], feed_dict=d.train_feed(m.placeholders))
         _, train_loss[i] = sess.run([inference.train, inference.loss], feed_dict=d.train_feed(m.placeholders))
         m.dump(dir_name+"/variational"+str(i)+".dat")
@@ -89,5 +87,5 @@ m.dump(dir_name+"/variational.dat")
 m.print_word_similarities(d.query_words, d, 10, dir_name, sess)
 if args.dynamic:
     words = m.detect_drift(d, dir_name, sess)
-    m.print_word_similarities(words[:50], d, 10, dir_name, sess)
+    m.print_word_similarities(words[:10], d, 10, dir_name, sess)
 m.plot_params(dir_name, d, 500)
