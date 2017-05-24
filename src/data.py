@@ -30,14 +30,14 @@ class bern_emb_data():
             self.n_test = dat_stats['test'].astype('int32')
 
 	# load vocabulary
-	df = pd.read_csv(os.path.join(fpath, 'unigram.txt'), delimiter='\t',header=None)
-	self.labels = df[0].values
-	self.counts = df[len(df.columns)-1].values
+        df = pd.read_csv(os.path.join(fpath, 'unigram.txt'), delimiter='\t',header=None)
+        self.labels = df[0].values
+        self.counts = df[len(df.columns)-1].values
         counts = (1.0 * self.counts / self.N) ** (3.0 / 4)
         self.unigram = counts / self.N
         self.w_idx = range(len(self.labels))
         if remove_stopwords:
-	    sw_df = pd.read_csv(os.path.join(fpath, 'stop_words.txt'), delimiter='\t',header=None)
+            sw_df = pd.read_csv(os.path.join(fpath, 'stop_words.txt'), delimiter='\t',header=None)
             stop_words = sw_df[0].values 
             self.w_idx = [i for i, w in enumerate(self.labels) if w not in stop_words]
             self.labels = self.labels[self.w_idx]
@@ -95,7 +95,7 @@ class bern_emb_data():
                 if (f_idx>=len(files)):
                     f_idx = 0
         	#data_new = self.load_file(files[f_idx])
-        	data_new = np.load(files[f_idx])
+                data_new = np.load(files[f_idx])
                 data = np.hstack([data, data_new])
                 if data.shape[0] < batch_size:
                     continue

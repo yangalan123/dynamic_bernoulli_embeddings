@@ -24,7 +24,7 @@ class emb_model(object):
 
     def plot_params(self, dir_name, d, plot_only=500):
 
-	tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+        tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
         low_dim_embs_alpha2 = tsne.fit_transform(self.alpha.eval()[:plot_only])
         plot_with_labels(low_dim_embs_alpha2[:plot_only], d.labels[:plot_only], dir_name + '/alpha.eps')
 
@@ -270,7 +270,7 @@ class dynamic_bern_emb_model(emb_model):
             pickle.dump( dat, open( fname, "a+" ) )
 
     def plot_params(self, dir_name, d, plot_only=500):
-	tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+        tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
         low_dim_embs_alpha = tsne.fit_transform(self.alpha.eval()[:plot_only])
         plot_with_labels(low_dim_embs_alpha[:plot_only], d.labels[:plot_only], dir_name + '/alpha.eps')
         
