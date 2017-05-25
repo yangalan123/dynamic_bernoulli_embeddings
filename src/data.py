@@ -12,10 +12,6 @@ class bern_emb_data():
         self.n_epochs = n_epochs
         self.dynamic = dynamic
         dat_stats = pickle.load(open(os.path.join(fpath, "dat_stats.pkl"), "a+"))
-        dat_stats['T_bins'] = dat_stats['T_bins']
-        dat_stats['train'] = dat_stats['train']
-        dat_stats['test'] = dat_stats['test']
-        dat_stats['valid'] = dat_stats['valid']
         self.T = len(dat_stats['T_bins'])
         self.name = dat_stats['name']
         if not self.dynamic:
@@ -30,14 +26,14 @@ class bern_emb_data():
             self.n_test = dat_stats['test'].astype('int32')
 
 	# load vocabulary
-	df = pd.read_csv(os.path.join(fpath, 'unigram.txt'), delimiter='\t',header=None)
-	self.labels = df[0].values
-	self.counts = df[len(df.columns)-1].values
+        df = pd.read_csv(os.path.join(fpath, 'unigram.txt'), delimiter='\t',header=None)
+        self.labels = df[0].values
+        self.counts = df[len(df.columns)-1].values
         counts = (1.0 * self.counts / self.N) ** (3.0 / 4)
         self.unigram = counts / self.N
         self.w_idx = range(len(self.labels))
         if remove_stopwords:
-	    sw_df = pd.read_csv(os.path.join(fpath, 'stop_words.txt'), delimiter='\t',header=None)
+            sw_df = pd.read_csv(os.path.join(fpath, 'stop_words.txt'), delimiter='\t',header=None)
             stop_words = sw_df[0].values 
             self.w_idx = [i for i, w in enumerate(self.labels) if w not in stop_words]
             self.labels = self.labels[self.w_idx]
@@ -95,7 +91,7 @@ class bern_emb_data():
                 if (f_idx>=len(files)):
                     f_idx = 0
         	#data_new = self.load_file(files[f_idx])
-        	data_new = np.load(files[f_idx])
+                data_new = np.load(files[f_idx])
                 data = np.hstack([data, data_new])
                 if data.shape[0] < batch_size:
                     continue
@@ -106,8 +102,8 @@ class bern_emb_data():
     def train_feed(self, placeholder):
         if self.dynamic:
             feed_dict = {}
-            for t, ph in enumerate(placeholder):
-                feed_dict[ph] = self.batch[t].next()
+            for t in range(self.T):
+                feed_dict[placeholder[t]] = self.batch[t].next()
             return feed_dict
         else:
             return {placeholder: self.batch.next()}
@@ -115,8 +111,8 @@ class bern_emb_data():
     def valid_feed(self, placeholder):
         if self.dynamic:
             feed_dict = {}
-            for t, ph in enumerate(placeholder):
-                feed_dict[ph] = self.valid_batch[t].next()
+            for t in range(self.T):
+                feed_dict[placeholder[t]] = self.valid_batch[t].next()
             return feed_dict
         else:
             return {placeholder: self.valid_batch.next()}
@@ -124,8 +120,8 @@ class bern_emb_data():
     def test_feed(self, placeholder):
         if self.dynamic:
             feed_dict = {}
-            for t, ph in enumerate(placeholder):
-                feed_dict[ph] = self.test_batch[t].next()
+            for t in range(self.T):
+                feed_dict[placeholder[t]] = self.test_batch[t].next()
             return feed_dict
         else:
             return {placeholder: self.test_batch.next()}
