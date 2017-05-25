@@ -63,15 +63,16 @@ class emb_model(object):
     def eval_log_like(self, feed_dict):
         return self.sess.run(tf.log(self.y_pos.mean()+0.000001), feed_dict = feed_dict)
 
+
     def plot_params(self, plot_only=500):
         with self.sess.as_default():
-	     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
-             low_dim_embs_alpha2 = tsne.fit_transform(self.alpha.eval()[:plot_only])
-             plot_with_labels(low_dim_embs_alpha2[:plot_only], self.labels[:plot_only], self.logdir + '/alpha.eps')
+	          tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+            low_dim_embs_alpha2 = tsne.fit_transform(self.alpha.eval()[:plot_only])
+            plot_with_labels(low_dim_embs_alpha2[:plot_only], self.labels[:plot_only], self.logdir + '/alpha.eps')
 
-             tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
-             low_dim_embs_rho2 = tsne.fit_transform(self.rho.eval()[:plot_only])
-             plot_with_labels(low_dim_embs_rho2[:plot_only], self.labels[:plot_only], self.logdir + '/rho.eps')
+            tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+            low_dim_embs_rho2 = tsne.fit_transform(self.rho.eval()[:plot_only])
+            plot_with_labels(low_dim_embs_rho2[:plot_only], self.labels[:plot_only], self.logdir + '/rho.eps')
 
     def print_word_similarities(self, words, num):
         query_word = tf.placeholder(dtype=tf.int32)
@@ -296,13 +297,12 @@ class dynamic_bern_emb_model(emb_model):
             log_p = np.vstack((log_p, log_p_t))
         return log_p
 
+
     def plot_params(self, plot_only=500):
         with self.sess.as_default():
-	    tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+	          tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
             low_dim_embs_alpha = tsne.fit_transform(self.alpha.eval()[:plot_only])
             plot_with_labels(low_dim_embs_alpha[:plot_only], self.labels[:plot_only], self.logdir + '/alpha.eps')
-            
-
             for t in [0, int(self.T/2), self.T-1]:
                 w_idx_t = range(plot_only)
                 np_rho = self.rho_t[t].eval()
