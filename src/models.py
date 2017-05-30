@@ -45,8 +45,8 @@ class emb_model(object):
             self.rho_init = fit['rho']
             self.alpha_init = fit['alpha']
         else:
-            self.rho_init = (0.1*np.random.randn(self.L, self.K)/self.K).astype('float32')
-            self.alpha_init = (0.1*np.random.randn(self.L, self.K)/self.K).astype('float32')
+            self.rho_init = (np.random.randn(self.L, self.K)/self.K).astype('float32')
+            self.alpha_init = (np.random.randn(self.L, self.K)/self.K).astype('float32')
         if not self.alpha_trainable:
             self.rho_init = (0.1*np.random.randn(self.L, self.K)/self.K).astype('float32')
 

@@ -12,14 +12,14 @@ def parse_args():
         parser.add_argument('--n_iter', type=int, default = 1,
                             help='Number of passes over the data. Default is 1.')
 
-        parser.add_argument('--n_epochs', type=int, default=1000,
-                            help='Number of epochs. Default is 1000.')
+        parser.add_argument('--n_epochs', type=int, default=10000,
+                            help='Number of epochs. Default is 10000.')
 
         parser.add_argument('--cs', type=int, default=4,
                             help='Context size. Default is 4.')
 
-        parser.add_argument('--ns', type=int, default=20,
-                            help='Number of negative samples. Default is 20.')
+        parser.add_argument('--ns', type=int, default=10,
+                            help='Number of negative samples. Default is 10.')
 
         parser.add_argument('--dynamic', type=bool, default=False,
                             help='Dynamics on rho. Default is False.')
