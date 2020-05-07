@@ -11,7 +11,7 @@ class bern_emb_data():
         self.ns = ns
         self.n_epochs = n_epochs
         self.dynamic = dynamic
-        dat_stats = pickle.load(open(os.path.join(fpath, "dat_stats.pkl"), "a+"))
+        dat_stats = pickle.load(open(os.path.join(fpath, "dat_stats.pkl"), "rb"))
         self.T = len(dat_stats['T_bins'])
         self.name = dat_stats['name']
         if not self.dynamic:
@@ -29,6 +29,7 @@ class bern_emb_data():
         df = pd.read_csv(os.path.join(fpath, 'unigram.txt'), delimiter='\t',header=None)
         self.labels = df[0].values
         self.counts = df[len(df.columns)-1].values
+        # print(self.N)
         counts = (1.0 * self.counts / self.N) ** (3.0 / 4)
         self.unigram = counts / self.N
         self.w_idx = range(len(self.labels))
@@ -103,26 +104,26 @@ class bern_emb_data():
         if self.dynamic:
             feed_dict = {}
             for t in range(self.T):
-                feed_dict[placeholder[t]] = self.batch[t].next()
+                feed_dict[placeholder[t]] = next(self.batch[t])
             return feed_dict
         else:
-            return {placeholder: self.batch.next()}
+            return {placeholder: next(self.batch)}
 
     def valid_feed(self, placeholder):
         if self.dynamic:
             feed_dict = {}
             for t in range(self.T):
-                feed_dict[placeholder[t]] = self.valid_batch[t].next()
+                feed_dict[placeholder[t]] = next(self.valid_batch[t])
             return feed_dict
         else:
-            return {placeholder: self.valid_batch.next()}
+            return {placeholder: next(self.valid_batch)}
 
     def test_feed(self, placeholder):
         if self.dynamic:
             feed_dict = {}
             for t in range(self.T):
-                feed_dict[placeholder[t]] = self.test_batch[t].next()
+                feed_dict[placeholder[t]] = next(self.test_batch[t])
             return feed_dict
         else:
-            return {placeholder: self.test_batch.next()}
+            return {placeholder: next(self.test_batch)}
 

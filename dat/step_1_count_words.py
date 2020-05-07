@@ -5,7 +5,7 @@ import pickle
 import re
 
 # Change this to the name of the folder where your dataset is
-dataset_name = 'arxiv_ML'
+dataset_name = 'opiates'
 # Change this to the number of words you want in the vocabulary
 V = 5000
 
@@ -16,7 +16,7 @@ N = len(files)
 
 for f_number, fn in enumerate(files):
     #print(str(f_number)+" out of "+str(N))
-    with open(fn, 'r') as myfile:
+    with open(fn, 'r', encoding='utf-8') as myfile:
         words = re.sub(r'[^a-zA-Z ]',r' ', myfile.read().replace('-\n','').replace('\n',' ')).lower().split()
     data = np.zeros(len(words))
     for idx, word in enumerate(words):
@@ -44,7 +44,7 @@ unig.columns = ['new_idx', 'word', 'old_idx', 'cnt']
 old_idx = unig.old_idx.values
 
 files = glob.glob(dataset_name +'/raw/*.npy')
-for fname in files:
+for f_number, fname in enumerate(files):
     print(str(f_number)+" out of "+str(N))
     dat = np.load(fname)
     new_dat = np.zeros_like(dat) + 2*V
@@ -52,7 +52,8 @@ for fname in files:
     for ni, oi in enumerate(old_idx[:V]):
         new_dat[dat == oi] = ni
     new_dat = new_dat[new_dat < V].astype('int32')
-    new_fname = fname.replace('raw/','train/')
+    new_fname = fname.replace('raw','train')
+    print(new_fname)
     np.save(new_fname, new_dat)
 
 unig.head(V).to_csv(dataset_name + '/unigram.txt',header=False, index = False, sep = '\t', columns = ['word', 'new_idx', 'cnt'])
